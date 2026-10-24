@@ -1,0 +1,4 @@
+[submodule "third_party/xDrip-Pebble-E"]
+	path = third_party/xDrip-Pebble-E
+	url = https://github.com/jstevensog/xDrip-Pebble-E.git
+	branch = framework
