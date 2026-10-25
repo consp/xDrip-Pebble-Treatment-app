@@ -1,11 +1,12 @@
-#ifndef __UX_TREATMENT_H__
-#define __UX_TREATMENT_H__
+#pragma once
 #include <pebble.h>
-#ifndef PBL_TOUCH
-#define treatment_display_init(...)
-#define treatment_display_deinit(...)
-#else
+
+#define ST_TREATMENT_BOLUS 126
+#define ST_TREATMENT_BASAL 127
+#define ST_TREATMENT_CARBS 128
+#define ST_TREATMENT_BOLUS_EN 133
+#define ST_TREATMENT_BASAL_EN 134
+#define ST_TREATMENT_CARBS_EN 135
+
 void treatment_display_init(Window *window);
 void treatment_display_deinit(void);
-#endif
-#endif

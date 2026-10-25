@@ -1,1 +1,11 @@
-../../third_party/xDrip-Pebble-E/src/c/xdrip.h
+#pragma once
+
+#ifndef ENABLE_TOUCH
+#define ENABLE_TOUCH
+#endif
+
+#define APPSYNC_ERR_VIBE 0
+#define APPMSG_OUTFAIL_VIBE 0
+#define APPMSG_INDROP_VIBE 0
+#define METRIC_PHONEBATT 0
+#define METRIC_SENSOR_EXPIRY 0

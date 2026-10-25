@@ -23,6 +23,8 @@ static void prv_init(void) {
     });
     const bool animated = true;
     window_stack_push(s_window, animated);
+
+    comm_init();
 }
 
 static void prv_deinit(void) {

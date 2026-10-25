@@ -398,6 +398,16 @@ char *bolus_down_text = "-";
 void treatment_display_init(Window *window) {
     // bg
 
+    // load values
+
+    basal_value = persist_exists(ST_TREATMENT_BASAL) ? persist_read_int(ST_TREATMENT_BASAL) : 10;
+    bolus_value = persist_exists(ST_TREATMENT_BOLUS) ? persist_read_int(ST_TREATMENT_BOLUS) : 10;
+    carbs_value = persist_exists(ST_TREATMENT_CARBS) ? persist_read_int(ST_TREATMENT_CARBS) : 10;
+
+    basal_enabled = persist_exists(ST_TREATMENT_BASAL_EN) ? persist_read_bool(ST_TREATMENT_BASAL_EN) : false;
+    bolus_enabled = persist_exists(ST_TREATMENT_BOLUS_EN) ? persist_read_bool(ST_TREATMENT_BOLUS_EN) : false;
+    carbs_enabled = persist_exists(ST_TREATMENT_CARBS_EN) ? persist_read_bool(ST_TREATMENT_CARBS_EN) : false;
+
     window_set_click_config_provider(window, prv_click_config_provider);
     Layer *root = window_get_root_layer(window);
     bg = layer_create((GRect) { {0, 0}, {PBL_DISPLAY_WIDTH, PBL_DISPLAY_HEIGHT }});
@@ -599,6 +609,17 @@ void treatment_display_deinit(void) {
     layer_destroy(bg);
 
     touch_service_unsubscribe();
+
+    // save state
+
+    persist_write_int(ST_TREATMENT_BASAL, basal_value);
+    persist_write_int(ST_TREATMENT_BOLUS, bolus_value);
+    persist_write_int(ST_TREATMENT_CARBS, carbs_value);
+
+    persist_write_bool(ST_TREATMENT_BASAL_EN, basal_enabled);
+    persist_write_bool(ST_TREATMENT_BOLUS_EN, bolus_enabled);
+    persist_write_bool(ST_TREATMENT_CARBS_EN, carbs_enabled);
+
     exit_reason_set(APP_EXIT_ACTION_PERFORMED_SUCCESSFULLY);
 }
 #endif
