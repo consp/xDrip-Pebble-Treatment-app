@@ -1,5 +1,7 @@
 # xDrip Treatment App
 
+![Screenshot description](resources/screenshot.png)
+
 This app allows you to enter treatment items into xdrip via a pebble watch. Currently you need a custom build to do this, until the changes get merged into xDrip. You can compile it yourself from either https://github.com/jstevensog/xDrip-NS-Dev or https://github.com/consp/xDrip-NS-Dev (note: use the PebbleFramework branch)
 
 Usage:
