@@ -1,0 +1,59 @@
+[
+    { 
+        "type": "heading", 
+        "defaultValue": "xDrip Pebble Treatment App" 
+    }, 
+    { 
+        "type": "text", 
+        "defaultValue": "App usage:\nup/down -> up/down or +/-\nselect -> once to enter/exit +/- mode, twice for switch enable/disable\n back -> If a setting is selected, save otherwise cancel.\n Touch is enabled as long as touch is enabled in the system settings." 
+    },
+    { 
+        "type": "slider",
+        "label": "Default bolus insulin value",
+        "messageKey": "default_bolus",
+        "defaultValue": 6,
+        "group": "touch",
+        "min": 1,
+        "max": 100
+    },
+    {
+        "type": "toggle",
+        "messageKey": "treatment_bolus_enabled",
+        "label": "Default enable bolus",
+        "defaultValue": false
+    },
+    { 
+        "type": "slider",
+        "messageKey": "default_basal",
+        "defaultValue": 12,
+        "min": 1,
+        "max": 100,
+        "group": "touch",
+        "label": "Default basal insulin value"
+    },
+    {
+        "type": "toggle",
+        "messageKey": "treatment_basal_enabled",
+        "label": "Default enable basal",
+        "defaultValue": false
+    },
+    { 
+        "type": "slider",
+        "messageKey": "default_carbs",
+        "defaultValue": 60,
+        "min": 1,
+        "max": 200,
+        "group": "touch",
+        "label": "Default carbohydrate value"
+    },
+    {
+        "type": "toggle",
+        "messageKey": "treatment_carbs_enabled",
+        "label": "Default enable carbohydrates",
+        "defaultValue": false
+    },
+    {
+        "type": "submit",
+        "defaultValue": "Save Settings"
+    }
+]
