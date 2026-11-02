@@ -68,15 +68,15 @@ enum button_state btn_state = BTN_STATE_MOVE;
  */
 
 void bolus_icon_update(Layer *layer, GContext *ctx) {
-    gdraw_command_image_draw(ctx, bolus_icon_image, GPoint((ICON_WIDTH - ICON_W_H) / 2, (TEXT_HEIGHT - ICON_W_H) / 2));
+    gdraw_command_image_draw(ctx, bolus_icon_image, GPoint(ICON_MARGIN, (TEXT_HEIGHT - ICON_W_H) / 2));
 }
 
 void basal_icon_update(Layer *layer, GContext *ctx) {
-    gdraw_command_image_draw(ctx, basal_icon_image, GPoint((ICON_WIDTH - ICON_W_H) / 2, (TEXT_HEIGHT - ICON_W_H) / 2));
+    gdraw_command_image_draw(ctx, basal_icon_image, GPoint(ICON_MARGIN, (TEXT_HEIGHT - ICON_W_H) / 2));
 }
 
 void carbs_icon_update(Layer *layer, GContext *ctx) {
-    gdraw_command_image_draw(ctx, carbs_icon_image, GPoint((ICON_WIDTH - ICON_W_H) / 2, (TEXT_HEIGHT - ICON_W_H) / 2));
+    gdraw_command_image_draw(ctx, carbs_icon_image, GPoint(ICON_MARGIN, (TEXT_HEIGHT - ICON_W_H) / 2));
 }
 
 void back_icon_update(Layer *layer, GContext *ctx) {
@@ -99,7 +99,7 @@ void enter_icon_update(Layer *layer, GContext *ctx) {
     });\
     icon = bitmap_layer_create((GRect) {\
             { 0, 0 },\
-            { ICON_WIDTH, height }\
+            { ICON_WIDTH + ICON_MARGIN, height }\
     });\
     icon ## _image = gdraw_command_image_create_with_resource(ic_value);\
     bitmap_layer_set_background_color(icon, GColorWhite);\
