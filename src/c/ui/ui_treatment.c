@@ -2,10 +2,9 @@
 #include "../debug.h"
 #include "ui_treatment.h"
 #include "../api/settings.h"
-#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_GABBRO)
 #include <stdarg.h>
 
-static void btn_select_item(void);
+static void btn_select_item(GContext *ctx);
 
 extern AppState state;
 
@@ -56,11 +55,9 @@ enum button_state btn_state = BTN_STATE_TOUCH;
 enum button_state btn_state = BTN_STATE_MOVE;
 #endif
 
-#define LEFT_MARGIN 10
-#define BUTTON_WIDTH 34
-#define ICON_WIDTH (((PBL_DISPLAY_WIDTH - (LEFT_MARGIN * 2) - (BUTTON_WIDTH * 2)) * 32) / 100) 
+#define ICON_WIDTH (((PBL_DISPLAY_WIDTH - (ICON_MARGIN * 2) - (BUTTON_WIDTH * 2)) * 32) / 100) 
 #define TEXT_WIDTH (PBL_DISPLAY_WIDTH - (LEFT_MARGIN * 2) - (BUTTON_WIDTH * 2))
-#define TEXT_HEIGHT 48
+#define ICON_W_H 36
 
 /**
  * [-][icon][bolus][+]
@@ -71,61 +68,61 @@ enum button_state btn_state = BTN_STATE_MOVE;
  */
 
 void bolus_icon_update(Layer *layer, GContext *ctx) {
-    gdraw_command_image_draw(ctx, bolus_icon_image, GPoint((ICON_WIDTH - 36) / 2, (TEXT_HEIGHT - 36) / 2));
+    gdraw_command_image_draw(ctx, bolus_icon_image, GPoint((ICON_WIDTH - ICON_W_H) / 2, (TEXT_HEIGHT - ICON_W_H) / 2));
 }
 
 void basal_icon_update(Layer *layer, GContext *ctx) {
-    gdraw_command_image_draw(ctx, basal_icon_image, GPoint((ICON_WIDTH - 36) / 2, (TEXT_HEIGHT - 36) / 2));
+    gdraw_command_image_draw(ctx, basal_icon_image, GPoint((ICON_WIDTH - ICON_W_H) / 2, (TEXT_HEIGHT - ICON_W_H) / 2));
 }
 
 void carbs_icon_update(Layer *layer, GContext *ctx) {
-    gdraw_command_image_draw(ctx, carbs_icon_image, GPoint((ICON_WIDTH - 36) / 2, (TEXT_HEIGHT - 36) / 2));
+    gdraw_command_image_draw(ctx, carbs_icon_image, GPoint((ICON_WIDTH - ICON_W_H) / 2, (TEXT_HEIGHT - ICON_W_H) / 2));
 }
 
 void back_icon_update(Layer *layer, GContext *ctx) {
     GRect a = layer_get_bounds(layer);
-    gdraw_command_image_draw(ctx, back_image, GPoint((a.size.w - 36) / 2, (a.size.h - 36) / 2));
+    gdraw_command_image_draw(ctx, back_image, GPoint((a.size.w - ICON_W_H) / 2, (a.size.h - ICON_W_H) / 2));
 }
 
 void enter_icon_update(Layer *layer, GContext *ctx) {
     GRect a = layer_get_bounds(layer);
-    gdraw_command_image_draw(ctx, enter_image, GPoint((a.size.w - 36) / 2, (a.size.h - 36) / 2));
+    gdraw_command_image_draw(ctx, enter_image, GPoint((a.size.w - ICON_W_H) / 2, (a.size.h - ICON_W_H) / 2));
 }
 
 
 
-#define FRAME(down, textfield, up, icon, ic_value, X, Y, BUTTON_WIDTH, HEIGHT) \
+#define FRAME(down, textfield, up, icon, ic_value, X, Y, button_width, height) \
 {\
     down = text_layer_create((GRect) { \
             { X,  Y }, \
-            { BUTTON_WIDTH, HEIGHT }\
+            { button_width, height }\
     });\
     icon = bitmap_layer_create((GRect) {\
             { 0, 0 },\
-            { ICON_WIDTH, HEIGHT }\
+            { ICON_WIDTH, height }\
     });\
     icon ## _image = gdraw_command_image_create_with_resource(ic_value);\
     bitmap_layer_set_background_color(icon, GColorWhite);\
     bitmap_layer_set_compositing_mode(icon, GCompOpSet);\
     layer_set_update_proc(bitmap_layer_get_layer(icon), icon ## _update);\
     textfield = text_layer_create((GRect) {\
-            { X + BUTTON_WIDTH,  Y }, \
-            { TEXT_WIDTH, HEIGHT }\
+            { X + button_width,  Y }, \
+            { TEXT_WIDTH, height }\
     });\
     up = text_layer_create((GRect) { \
-            { PBL_DISPLAY_WIDTH - X - BUTTON_WIDTH,  Y },\
-            { BUTTON_WIDTH, HEIGHT }\
+            { PBL_DISPLAY_WIDTH - X - button_width,  Y },\
+            { button_width, height }\
     });\
 }
 
-#define BOLUS_X 10
-#define BOLUS_Y 5 
+#define BOLUS_X LEFT_MARGIN
+#define BOLUS_Y TOP_MARGIN
 
-#define BASAL_X 10 
-#define BASAL_Y TEXT_HEIGHT + BOLUS_Y + LEFT_MARGIN
+#define BASAL_X LEFT_MARGIN
+#define BASAL_Y TEXT_HEIGHT + BOLUS_Y + TOP_MARGIN
 
-#define CARBS_X 10
-#define CARBS_Y TEXT_HEIGHT + BASAL_Y + LEFT_MARGIN
+#define CARBS_X LEFT_MARGIN
+#define CARBS_Y TEXT_HEIGHT + BASAL_Y + TOP_MARGIN
 
 /* #define BACK_X BOLUS_UP_X */
 #define BACK_X BASAL_X
@@ -184,7 +181,7 @@ void update_text(void) {
     text_layer_set_text(carbs_text, carbs_tx);
 }
 
-void update_bb(void) {
+void update_bb(Layer *layer, GContext *ctx) {
     if (btn_state == BTN_STATE_TOUCH) {
         if (basal_enabled) text_layer_set_background_color(basal_text, GColorGreen);
         else text_layer_set_background_color(basal_text, GColorWhite);
@@ -195,7 +192,7 @@ void update_bb(void) {
 
         if (carbs_enabled) text_layer_set_background_color(carbs_text, GColorGreen);
         else text_layer_set_background_color(carbs_text, GColorWhite);
-    } else btn_select_item();
+    } else btn_select_item(ctx);
 }
 
 bool inbounds(GRect bounds, int x, int y) {
@@ -279,7 +276,7 @@ void treatment_touch_handler(const TouchEvent *event, void *context) {
                 carbs_enabled = !carbs_enabled;
             }
             update_text();
-            update_bb();
+            layer_mark_dirty(bg);
             break;
         default:
             break;
@@ -288,31 +285,53 @@ void treatment_touch_handler(const TouchEvent *event, void *context) {
 
 /** non touch **/
 
-static void btn_select_item(void) {
+static void draw_selected(GContext *ctx, GRect rect, bool selected, bool enabled) {
+    graphics_context_set_stroke_color(ctx, selected && enabled ? GColorRed : selected ? GColorBlue : GColorClear);
+    graphics_context_set_fill_color(ctx, GColorClear);
+    graphics_context_set_stroke_width(ctx, 6);
+    graphics_draw_rect(ctx, rect);
+}
+
+static void btn_select_item(GContext *ctx) {
     WARNING("color");
-    if (btn_state == BTN_STATE_SELECTED) {
-        if (btn_item == 0) text_layer_set_background_color(bolus_text, bolus_enabled ? GColorIslamicGreen : GColorBrass);
-        else text_layer_set_background_color(bolus_text, bolus_enabled ? GColorGreen : GColorWhite);
-        if (btn_item == 1) text_layer_set_background_color(basal_text, basal_enabled ? GColorIslamicGreen : GColorBrass);
-        else text_layer_set_background_color(basal_text, basal_enabled ? GColorGreen : GColorWhite);
-        if (btn_item == 2) text_layer_set_background_color(carbs_text, carbs_enabled ? GColorIslamicGreen : GColorBrass);
-        else text_layer_set_background_color(carbs_text, carbs_enabled ? GColorGreen : GColorWhite);
-    } else if (btn_state == BTN_STATE_MOVE) {
-        if (btn_item == 0) text_layer_set_background_color(bolus_text, bolus_enabled ? GColorMediumSpringGreen : GColorYellow);
-        else text_layer_set_background_color(bolus_text, bolus_enabled ? GColorGreen : GColorWhite);
-        if (btn_item == 1) text_layer_set_background_color(basal_text, basal_enabled ? GColorMediumSpringGreen : GColorYellow);
-        else text_layer_set_background_color(basal_text, basal_enabled ? GColorGreen : GColorWhite);
-        if (btn_item == 2) text_layer_set_background_color(carbs_text, carbs_enabled ? GColorMediumSpringGreen : GColorYellow);
-        else text_layer_set_background_color(carbs_text, carbs_enabled ? GColorGreen : GColorWhite);
+    switch (btn_item) {
+        case 0:
+            draw_selected(ctx, GRect(BOLUS_X - 1, BOLUS_Y - 1, PBL_DISPLAY_WIDTH - (BOLUS_X * 2) + 2, TEXT_HEIGHT + 2), true, btn_state == BTN_STATE_SELECTED);
+            draw_selected(ctx, GRect(BASAL_X - 1, BASAL_Y - 1, PBL_DISPLAY_WIDTH - (BASAL_X * 2) + 2, TEXT_HEIGHT + 2), false, btn_state == BTN_STATE_SELECTED);
+            draw_selected(ctx, GRect(CARBS_X - 1, CARBS_Y - 1, PBL_DISPLAY_WIDTH - (CARBS_X * 2) + 2, TEXT_HEIGHT + 2), false, btn_state == BTN_STATE_SELECTED);
+            break;
+        case 1:
+            draw_selected(ctx, GRect(BOLUS_X - 1, BOLUS_Y - 1, PBL_DISPLAY_WIDTH - (BOLUS_X * 2) + 2, TEXT_HEIGHT + 2), false, btn_state == BTN_STATE_SELECTED);
+            draw_selected(ctx, GRect(BASAL_X - 1, BASAL_Y - 1, PBL_DISPLAY_WIDTH - (BASAL_X * 2) + 2, TEXT_HEIGHT + 2), true, btn_state == BTN_STATE_SELECTED);
+            draw_selected(ctx, GRect(CARBS_X - 1, CARBS_Y - 1, PBL_DISPLAY_WIDTH - (CARBS_X * 2) + 2, TEXT_HEIGHT + 2), false, btn_state == BTN_STATE_SELECTED);
+            break;
+        case 2:
+            draw_selected(ctx, GRect(BOLUS_X - 1, BOLUS_Y - 1, PBL_DISPLAY_WIDTH - (BOLUS_X * 2) + 2, TEXT_HEIGHT + 2), false, btn_state == BTN_STATE_SELECTED);
+            draw_selected(ctx, GRect(BASAL_X - 1, BASAL_Y - 1, PBL_DISPLAY_WIDTH - (BASAL_X * 2) + 2, TEXT_HEIGHT + 2), false, btn_state == BTN_STATE_SELECTED);
+            draw_selected(ctx, GRect(CARBS_X - 1, CARBS_Y - 1, PBL_DISPLAY_WIDTH - (CARBS_X * 2) + 2, TEXT_HEIGHT + 2), true, btn_state == BTN_STATE_SELECTED);
+            break;
+        default:
+            ERROR("Invalid selection");
     }
+
+    text_layer_set_background_color(bolus_text, bolus_enabled ? GColorIslamicGreen : GColorWhite);
+    text_layer_set_background_color(basal_text, basal_enabled ? GColorIslamicGreen : GColorWhite);
+    text_layer_set_background_color(carbs_text, carbs_enabled ? GColorIslamicGreen : GColorWhite);
 }
 
 static void prv_back_click_handler(ClickRecognizerRef recognizer, void *context) {
     WARNING("BACK");
-    if (basal_enabled || bolus_enabled || carbs_enabled) {
-        confirm();
+    if (btn_state == BTN_STATE_TOUCH || btn_state == BTN_STATE_MOVE) {
+        if (basal_enabled || bolus_enabled || carbs_enabled) {
+            confirm();
+        } else {
+            cancel();
+        }
     } else {
-        cancel();
+        // BTN_STATE_SELECT
+        btn_state = BTN_STATE_MOVE;
+        update_text();
+        layer_mark_dirty(bg);
     }
 }
 
@@ -320,7 +339,7 @@ static void prv_select_click_handler(ClickRecognizerRef recognizer, void *contex
     WARNING("SELECT");
     if (btn_state == BTN_STATE_MOVE) btn_state = BTN_STATE_SELECTED;
     else btn_state = BTN_STATE_MOVE;
-    btn_select_item();
+    layer_mark_dirty(bg);
 }
 
 static void prv_up_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -328,7 +347,7 @@ static void prv_up_click_handler(ClickRecognizerRef recognizer, void *context) {
     if (btn_state == BTN_STATE_MOVE) {
         if (btn_item == 0) btn_item = 2;
         else btn_item--;
-        btn_select_item();
+        layer_mark_dirty(bg);
     } else if (btn_state == BTN_STATE_SELECTED) {
         switch (btn_item) {
             case 0: bolus_value++; break;
@@ -344,11 +363,11 @@ static void prv_down_click_handler(ClickRecognizerRef recognizer, void *context)
     if (btn_state == BTN_STATE_MOVE) {
         btn_item++;
         if (btn_item > 2) btn_item = 0;
-        btn_select_item();
+        layer_mark_dirty(bg);
     } else if (btn_state == BTN_STATE_SELECTED) {
         switch (btn_item) {
             case 0: if (bolus_value > 0) bolus_value--; break;
-            case 1: if (basal_value > 0)basal_value--; break;
+            case 1: if (basal_value > 0) basal_value--; break;
             case 2: if (carbs_value > 0) carbs_value--; break;
         }
         update_text();
@@ -363,7 +382,7 @@ static void select_long_click_handler(ClickRecognizerRef recognizer, void *conte
             case 1: basal_enabled = !basal_enabled; break;
             case 2: carbs_enabled = !carbs_enabled; break;
         }
-        update_bb();
+        layer_mark_dirty(bg);
     } else {
         prv_select_click_handler(recognizer, context);
     }
@@ -383,8 +402,8 @@ static void raw_down_handler(ClickRecognizerRef recognizer,
 static void prv_click_config_provider(void *context) {
     window_single_click_subscribe(BUTTON_ID_SELECT, prv_select_click_handler);
     window_single_click_subscribe(BUTTON_ID_BACK, prv_back_click_handler);
-    window_single_repeating_click_subscribe(BUTTON_ID_UP, 250, prv_up_click_handler);
-    window_single_repeating_click_subscribe(BUTTON_ID_DOWN, 250, prv_down_click_handler);
+    window_single_repeating_click_subscribe(BUTTON_ID_UP, REPEAT_DELAY, prv_up_click_handler);
+    window_single_repeating_click_subscribe(BUTTON_ID_DOWN, REPEAT_DELAY, prv_down_click_handler);
     window_multi_click_subscribe(BUTTON_ID_SELECT, 1, 2, 300, true, select_long_click_handler);
 }
 
@@ -411,6 +430,7 @@ void treatment_display_init(Window *window) {
     window_set_click_config_provider(window, prv_click_config_provider);
     Layer *root = window_get_root_layer(window);
     bg = layer_create((GRect) { {0, 0}, {PBL_DISPLAY_WIDTH, PBL_DISPLAY_HEIGHT }});
+    layer_set_update_proc(bg, update_bb);
     layer_add_child(root, bg);
 
     FRAME(bolus_down, bolus_text, bolus_up, bolus_icon, BOLUS_ICON, BOLUS_X, BOLUS_Y, BUTTON_WIDTH, TEXT_HEIGHT);
@@ -431,8 +451,7 @@ void treatment_display_init(Window *window) {
     text_layer_set_background_color(bolus_up, GColorLightGray);
     text_layer_set_background_color(bolus_down, GColorLightGray);
     text_layer_set_background_color(bolus_text, GColorWhite);
-    
-    FontInfo *font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_GOTHAM_BOLD_40));
+    FontInfo *font = fonts_load_custom_font(resource_get_handle(FONT));
     text_layer_set_font(bolus_up, font);
     text_layer_set_font(bolus_down, font);
     text_layer_set_font(bolus_text, font);
@@ -575,7 +594,7 @@ void treatment_display_init(Window *window) {
     btn_item = 0;
 
     update_text();
-    update_bb();
+    layer_mark_dirty(bg);
 
     // fetch touch events
     touch_service_subscribe(treatment_touch_handler, NULL);
@@ -622,4 +641,3 @@ void treatment_display_deinit(void) {
 
     exit_reason_set(APP_EXIT_ACTION_PERFORMED_SUCCESSFULLY);
 }
-#endif
