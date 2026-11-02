@@ -1,7 +1,7 @@
 {
   "name": "xDrip Treatment App",
   "author": "Tristan Timmermans",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "keywords": [
     "pebble-app",
     "xdrip"
@@ -15,6 +15,7 @@
     "uuid": "55543dc9-13ce-475e-807b-8f30360e0105",
     "sdkVersion": "3",
     "targetPlatforms": [
+      "basalt",
       "emery",
       "gabbro"
     ],
@@ -60,25 +61,25 @@
           "file": "images/checkmark-bw.pdc"
         },
         {
-          "characterRegex": "[0-9:APM ]",
+          "characterRegex": "[0-9+-]",
           "type": "font",
           "name": "GOTHAM_BOLD_30",
           "file": "GothamBold.ttf"
         },
         {
-          "characterRegex": "[0-9:APM +-]",
+          "characterRegex": "[0-9+-]",
           "type": "font",
           "name": "GOTHAM_BOLD_40",
           "file": "GothamBold.ttf"
         },
         {
-          "characterRegex": "[0-9:APM +-]",
+          "characterRegex": "[0-9+-]",
           "type": "font",
           "name": "GOTHAM_BOLD_60",
           "file": "GothamBold.ttf"
         },
         {
-          "characterRegex": "[0-9:APM ]",
+          "characterRegex": "[0-9+-]",
           "type": "font",
           "name": "GOTHAM_BOLD_54",
           "file": "GothamBold.ttf",

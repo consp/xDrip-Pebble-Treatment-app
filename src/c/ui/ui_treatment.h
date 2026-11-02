@@ -31,11 +31,27 @@
 #endif
 
 #if defined(PBL_PLATFORM_GABBRO)
-#define TOP_MARGIN 50
+#define TOP_MARGIN 32
 #elif defined(PBL_PLATFORM_BASALT)
 #define TOP_MARGIN 4
 #else
 #define TOP_MARGIN 5 
+#endif
+
+#if defined(PBL_PLATFORM_GABBRO)
+#define TOP_SPACING 5
+#elif defined(PBL_PLATFORM_BASALT)
+#define TOP_SPACING 4
+#else
+#define TOP_SPACING 6
+#endif
+
+#if defined(PBL_PLATFORM_GABBRO)
+#define BOTTOM_MARGIN 32
+#elif defined(PBL_PLATFORM_BASALT)
+#define BOTTOM_MARGIN 12
+#else
+#define BOTTOM_MARGIN 8 
 #endif
 
 #if defined(PBL_PLATFORM_BASALT)
