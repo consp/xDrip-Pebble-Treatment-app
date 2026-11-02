@@ -5,11 +5,11 @@
  * Margins and sizes
  */
 #if defined(PBL_PLATFORM_GABBRO)
-#define ICON_MARGIN 5
+#define ICON_MARGIN 32
 #elif defined(PBL_PLATFORM_BASALT)
 #define ICON_MARGIN 2
 #else
-#define ICON_MARGIN 5
+#define ICON_MARGIN 8
 #endif
 #if defined(PBL_PLATFORM_BASALT)
 #define BUTTON_WIDTH 4 
