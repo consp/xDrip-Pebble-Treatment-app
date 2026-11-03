@@ -39,7 +39,7 @@ pebble install --phone <ip>           # install to a paired phone
 
 ## Target platforms
 
-Only basalt, emery and gabbro are supported, the other platforms do not have colour screens.
+Only basalt, emery and gabbro are supported, the other platforms do not have colour screens. (This means, Pebble Time, Pebble Steel, Pebble Time 2 and Pebble Round 2)
 
 # Legal
 
